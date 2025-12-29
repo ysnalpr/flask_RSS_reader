@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جدید ترین خبرها</title>
+</head>
+<body>
+    <h1>جدید ترین خبرها</h1>
+    <ul>
+        {% for item in news %}
+            <li>
+                <a href="{{ item[2] }}">{{ item[1] }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

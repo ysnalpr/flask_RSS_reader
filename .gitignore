@@ -46,6 +46,8 @@ cover/
 
 *.mo
 *.pot
+*.db
+*.sqlite3
 
 python-version
 Pipfile.lock
