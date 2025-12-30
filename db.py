@@ -1,4 +1,4 @@
-import sqlite3, feedparser
+import sqlite3, feedparser, re
 
 
 # Create and initialize the database

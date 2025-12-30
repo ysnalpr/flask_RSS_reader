@@ -1,18 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جدید ترین خبرها</title>
+    <title>خبرفارسی | مهمترین خبرهای روز</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>جدید ترین خبرها</h1>
-    <ul>
-        {% for item in news %}
-            <li>
-                <a href="{{ item[2] }}">{{ item[1] }}</a>
-            </li>
-        {% endfor %}
-    </ul>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">خبرفارسی | مهمترین خبرهای روز</h1>
+
+        <!-- Search Bar -->
+        <div class="row search-container">
+            <div class="col-md-6 offset-md-3">
+                <input type="text" id="searchBar" class="form-control" placeholder="جست و جو  ...">
+            </div>
+        </div>
+
+        <!-- News Cards -->
+        <div class="row" id="newsList">
+            {% for item in news %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item[1] | striptags }}</h5>
+                            <p class="card-text">{{ item[3] | striptags }}</p>
+                            <a href="{{ item[2] }}" class="btn btn-primary" target="_blank">ادامه مطلب</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- Pagination Controls -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <ul class="pagination justify-content-center">
+                    {% if page > 1 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('home', page=page-1) }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+
+                    {% for p in range(1, total_pages + 1) %}
+                        <li class="page-item {% if p == page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('home', page=p) }}">{{ p }}</a>
+                        </li>
+                    {% endfor %}
+
+                    {% if page < total_pages %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('home', page=page+1) }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
