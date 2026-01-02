@@ -1,90 +1,134 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خبرفارسی | مهمترین خبرهای روز</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>آخرین اخبار</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap 5 (modern) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom CSS -->
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Font (optional but nice for Persian) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <div class="container mt-4">
-        <h1 class="text-center mb-4">خبرفارسی | مهمترین خبرهای روز</h1>
-
-        <!-- Search Bar -->
-        <div class="row search-container">
-            <div class="col-md-6 offset-md-3">
-                <input type="text" id="searchBar" class="form-control" placeholder="جست و جو  ...">
-            </div>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="container py-3">
+      <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+        <div class="brand">
+          <div class="brand-badge">📰</div>
+          <div class="brand-text">
+            <div class="brand-title rtl-text" dir="rtl">خبرخوان RSS</div>
+            <div class="brand-subtitle">Flask</div>
+          </div>
         </div>
 
-        <!-- News Cards -->
-        <div class="row" id="newsList">
-            {% for item in news %}
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ item[1] | striptags }}</h5>
-                            <p class="card-text">{{ item[3] | striptags }}</p>
-                            <a href="{{ item[2] }}" class="btn btn-primary" target="_blank">ادامه مطلب</a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+        <div class="header-actions d-flex align-items-center gap-2">
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input id="searchBar" class="search-input rtl-text" dir="rtl" type="text" placeholder="جستجو در خبرها..." />
+          </div>
+
+          <button id="themeBtn" class="btn theme-btn" type="button" title="Toggle theme">
+            <span id="themeIcon">🌙</span>
+          </button>
         </div>
-        <!-- Pagination Controls -->
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <ul class="pagination justify-content-center">
-                    {% if page > 1 %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('home', page=page-1) }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">&laquo;</span>
-                        </li>
-                    {% endif %}
+      </div>
+    </div>
+  </header>
 
-                    {% for p in range(1, total_pages + 1) %}
-                        <li class="page-item {% if p == page %}active{% endif %}">
-                            <a class="page-link" href="{{ url_for('home', page=p) }}">{{ p }}</a>
-                        </li>
-                    {% endfor %}
+  <!-- Main -->
+  <main class="container py-4">
+    <div class="top-row d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div class="rtl-text" dir="rtl">
+        <h2 class="page-title mb-1">آخرین خبرها</h2>
+        <div class="page-hint">برای هر صفحه 9 خبر نمایش داده می‌شود.</div>
+      </div>
 
-                    {% if page < total_pages %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('home', page=page+1) }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">&raquo;</span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-
-
+      <div class="pill rtl-text" dir="rtl">
+        صفحه <strong>{{ page }}</strong> از <strong>{{ total_pages }}</strong>
+      </div>
     </div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Grid -->
+    <div id="newsGrid" class="news-grid mt-3">
+      {% for item in news %}
+      <article class="news-card"
+               data-title="{{ item[1] | lower }}"
+               data-desc="{{ (item[3] | striptags) | lower }}">
+        <div class="news-card-body">
+          <div class="news-meta">
+            <span class="dot"></span>
+            <span class="meta-text">RSS item</span>
+          </div>
 
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+          <h3 class="news-title rtl-text" dir="rtl">
+            {{ item[1] }}
+          </h3>
+
+          <p class="news-desc rtl-text" dir="rtl">
+            {{ item[3] | striptags | truncate(100, True, '...') }}
+          </p>
+
+          <div class="news-actions">
+            <a class="btn btn-accent" href="{{ item[2] }}" target="_blank" rel="noopener">
+              ادامه مطلب
+              <span class="arrow">↗</span>
+            </a>
+
+            <button class="btn btn-ghost copyBtn" type="button" data-link="{{ item[2] }}">
+              کپی لینک
+            </button>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="pagination-wrap mt-4">
+      <nav aria-label="Pagination">
+        <ul class="pagination pagination-modern justify-content-center mb-0">
+          {% if page > 1 %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('home', page=page-1) }}" aria-label="Previous">‹</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">‹</span></li>
+          {% endif %}
+
+          {% for p in range(1, total_pages + 1) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+              <a class="page-link" href="{{ url_for('home', page=p) }}">{{ p }}</a>
+            </li>
+          {% endfor %}
+
+          {% if page < total_pages %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('home', page=page+1) }}" aria-label="Next">›</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">›</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+
+    <footer class="app-footer rtl-text" dir="rtl">
+      ساخته شده با Flask •
+    </footer>
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Custom JS -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
