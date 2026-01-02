@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from db import init_db, save_news_to_db, fetch_rss_feed
 import sqlite3
 
 app = Flask(__name__)
 
 
+# Fetch and store news before each request
 @app.before_request
 def fetch_and_store_news():
     init_db()
@@ -12,6 +13,7 @@ def fetch_and_store_news():
     save_news_to_db(news_items)
 
 
+# Helper function to build pagination links
 def build_pagination(page, total_pages, window=2):
     if total_pages <= 1:
         return [1]
@@ -77,6 +79,18 @@ def home():
         pagination=pagination,
         q=q,
     )
+
+
+@app.route("/refresh")
+def refresh():
+    news_items = fetch_rss_feed()
+    save_news_to_db(news_items)
+
+    # Go back to where the user was
+    page = request.args.get("page", 1, type=int)
+    q = request.args.get("q", "", type=str)
+
+    return redirect(url_for("home", page=page, q=q, refreshed=1))
 
 
 if __name__ == "__main__":

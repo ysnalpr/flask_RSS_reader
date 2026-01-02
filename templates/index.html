@@ -31,6 +31,11 @@
 			</div>
 
 			<div class="header-actions d-flex align-items-center gap-2">
+				{% if request.args.get('refreshed') %}
+				<div class="alert alert-success rtl-text mb-0 p-2" dir="rtl">
+				بروزرسانی انجام شد ✅
+				</div>
+				{% endif %}
 				<form id="searchForm" class="search-wrap" method="get" action="{{ url_for('home') }}">
 					<span class="search-icon">⌕</span>
 					<input id="searchBar" name="q" class="search-input rtl-text" dir="rtl" type="text" placeholder="جستجو در خبرها..." value="{{ q }}" autocomplete="off"/>
@@ -39,23 +44,25 @@
 				<button id="themeBtn" class="btn theme-btn" type="button" title="Toggle theme">
 					<span id="themeIcon">🌙</span>
 				</button>
+				<a class="btn btn-accent" href="{{ url_for('refresh', page=page, q=q) }}">بروزرسانی فید</a>
 			</div>
 	  	</div>
 	</div>
   </header>
 
   <!-- Main -->
-  <main class="container py-4">
-	<div class="top-row d-flex align-items-center justify-content-between flex-wrap gap-2">
-	  <div class="rtl-text" dir="rtl">
-		<h2 class="page-title mb-1">آخرین خبرها</h2>
-		<div class="page-hint">برای هر صفحه 9 خبر نمایش داده می‌شود.</div>
-	  </div>
-
-	  <div class="pill rtl-text" dir="rtl">
-		صفحه <strong>{{ page }}</strong> از <strong>{{ total_pages }}</strong>
-	  </div>
-	</div>
+  	<main class="container py-4">
+		<div class="top-row d-flex align-items-center justify-content-between flex-wrap gap-2">
+			<div class="rtl-text" dir="rtl">
+				<h2 class="page-title mb-1">آخرین خبرها</h2>
+				<div class="page-hint">برای هر صفحه 9 خبر نمایش داده می‌شود.</div>
+			</div>
+			
+			<div class="pill rtl-text" dir="rtl">
+				صفحه <strong>{{ page }}</strong> از <strong>{{ total_pages }}</strong>
+			</div>
+				
+		</div>
 
 	<!-- Grid -->
 	<div id="newsGrid" class="news-grid mt-3">
@@ -124,11 +131,11 @@
 	  </nav>
 	</div>
 
-	<footer class="app-footer rtl-text" dir="rtl">
-	  ساخته شده با Flask •
-	  <br><a class="page-link" href="https://khabarfarsi.com/rss/top" target="_blank">RSS: https://khabarfarsi.com/rss/top </a>
-	</footer>
-  </main>
+		<footer class="app-footer rtl-text" dir="rtl">
+			ساخته شده با Flask •
+			<br><a class="page-link" href="https://khabarfarsi.com/rss/top" target="_blank">RSS: https://khabarfarsi.com/rss/top </a>
+		</footer>
+  	</main>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
