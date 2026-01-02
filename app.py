@@ -12,6 +12,26 @@ def fetch_and_store_news():
     save_news_to_db(news_items)
 
 
+def build_pagination(page, total_pages, window=2):
+    if total_pages <= 1:
+        return [1]
+
+    pages = [1]
+    start = max(2, page - window)
+    end = min(total_pages - 1, page + window)
+
+    if start > 2:
+        pages.append(None)
+
+    pages.extend(range(start, end + 1))
+
+    if end < total_pages - 1:
+        pages.append(None)
+
+    pages.append(total_pages)
+    return pages
+
+
 @app.route("/")
 def home():
     # Pagination parameters to get 10 items per page
@@ -35,11 +55,14 @@ def home():
     conn.close()
     # Calculate total number of pages
     total_pages = (total_items + per_page - 1) // per_page
+
+    pagination = build_pagination(page, total_pages, window=2)
     return render_template(
         "index.html",
         news=news_items,
         page=page,
         total_pages=total_pages,
+        pagination=pagination,
     )
 
 
