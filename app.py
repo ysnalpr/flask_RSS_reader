@@ -34,27 +34,39 @@ def build_pagination(page, total_pages, window=2):
 
 @app.route("/")
 def home():
-    # Pagination parameters to get 10 items per page
+    # Pagination parameters to get 9 items per page
     page = request.args.get("page", 1, type=int)
+    q = request.args.get("q", "", type=str).strip()
     per_page = 9
     offset = (page - 1) * per_page
 
     # Database connection
     conn = sqlite3.connect("news.db")
     c = conn.cursor()
-    # Get paginated news from database
-    c.execute(
-        "SELECT * FROM news ORDER BY id DESC LIMIT ? OFFSET ?", (per_page, offset)
-    )
-    news_items = c.fetchall()
-
-    # Get total number of items from database
-    c.execute("SELECT COUNT(*) FROM news")
-    total_items = c.fetchone()[0]
+    if q:
+        like = f"%{q}%"
+        c.execute(
+            "SELECT * FROM NEWS WHERE title LIKE ? OR description LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?",
+            (like, like, per_page, offset),
+        )
+        news_items = c.fetchall()
+        c.execute(
+            "SELECT COUNT(*) FROM news WHERE title LIKE ? OR description LIKE ?",
+            (like, like),
+        )
+        total_items = c.fetchone()[0]
+    else:
+        c.execute(
+            "SELECT * FROM news ORDER BY id DESC LIMIT ? OFFSET ?", (per_page, offset)
+        )
+        news_items = c.fetchall()
+        c.execute("SELECT COUNT(*) FROM news")
+        total_items = c.fetchone()[0]
 
     conn.close()
+
     # Calculate total number of pages
-    total_pages = (total_items + per_page - 1) // per_page
+    total_pages = max(1, (total_items + per_page - 1) // per_page)
 
     pagination = build_pagination(page, total_pages, window=2)
     return render_template(
@@ -63,6 +75,7 @@ def home():
         page=page,
         total_pages=total_pages,
         pagination=pagination,
+        q=q,
     )
 
 

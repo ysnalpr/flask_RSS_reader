@@ -49,3 +49,24 @@ if (themeBtn) {
     setTheme(current === "dark" ? "light" : "dark");
   });
 }
+
+
+// server-side search submit
+const searchForm = document.getElementById("searchForm");
+const searchInput = document.getElementById("searchBar");
+
+let searchTimer = null;
+
+if (searchForm && searchInput) {
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+
+    searchTimer = setTimeout(() => {
+      // always reset to page 1 on a new query
+      const pageInput = searchForm.querySelector('input[name="page"]');
+      if (pageInput) pageInput.value = "1";
+
+      searchForm.submit();
+    }, 500); // 500ms is default (change to 300 if you want faster)
+  });
+}

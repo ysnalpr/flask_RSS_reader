@@ -10,7 +10,7 @@ def init_db():
         """CREATE TABLE IF NOT EXISTS news (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
-        link TEXT NOT NULL,
+        link TEXT NOT NULL UNIQUE,
         description TEXT)"""
     )
 
@@ -25,7 +25,7 @@ def save_news_to_db(news_items):
 
     for item in news_items:
         c.execute(
-            """INSERT INTO news (title, link, description) VALUES (?, ?, ?)""",
+            """INSERT OR IGNORE INTO news (title, link, description) VALUES (?, ?, ?)""",
             (item["title"], item["link"], item["description"]),
         )
 
