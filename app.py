@@ -81,6 +81,20 @@ def home():
     )
 
 
+@app.route("/detail/<int:news_id>")
+def news_detail(news_id):
+    conn = sqlite3.connect("news.db")
+    c = conn.cursor()
+    c.execute("SELECT * FROM news WHERE id = ?", (news_id,))
+    item = c.fetchone()
+    conn.close()
+
+    if item:
+        return render_template("detail.html", item=item)
+    else:
+        return "News not found!", 404
+
+
 @app.route("/refresh")
 def refresh():
     news_items = fetch_rss_feed()
