@@ -9,7 +9,7 @@ if (searchBar) {
     cards().forEach((card) => {
       const t = card.dataset.title || "";
       const d = card.dataset.desc || "";
-      card.style.display = (t.includes(q) || d.includes(q)) ? "" : "none";
+      card.style.display = t.includes(q) || d.includes(q) ? "" : "none";
     });
   });
 }
@@ -37,7 +37,7 @@ const themeIcon = document.getElementById("themeIcon");
 function setTheme(mode) {
   document.documentElement.setAttribute("data-theme", mode);
   localStorage.setItem("theme", mode);
-  if (themeIcon) themeIcon.textContent = (mode === "light") ? "☀️" : "🌙";
+  if (themeIcon) themeIcon.textContent = mode === "light" ? "☀️" : "🌙";
 }
 
 const saved = localStorage.getItem("theme");
@@ -45,11 +45,11 @@ if (saved) setTheme(saved);
 
 if (themeBtn) {
   themeBtn.addEventListener("click", () => {
-    const current = document.documentElement.getAttribute("data-theme") || "dark";
+    const current =
+      document.documentElement.getAttribute("data-theme") || "dark";
     setTheme(current === "dark" ? "light" : "dark");
   });
 }
-
 
 // server-side search submit
 const searchForm = document.getElementById("searchForm");
@@ -67,6 +67,6 @@ if (searchForm && searchInput) {
       if (pageInput) pageInput.value = "1";
 
       searchForm.submit();
-    }, 500); // 500ms is default (change to 300 if you want faster)
+    }, 1000); // set to 1000ms (1s) (change to 500 if you want faster)
   });
 }
