@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from db import init_db, save_news_to_db, fetch_all_feeds
+from modules import category_label
 import sqlite3
 
 app = Flask(__name__)
@@ -95,6 +96,7 @@ def home():
         q=q,
         category=category,
         categories=categories,
+        category_label=category_label,
     )
 
 

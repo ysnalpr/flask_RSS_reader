@@ -91,13 +91,13 @@
               <select class="form-select rtl-text" dir="rtl" name="category" id="categorySelectMobile">
                 <option value="">همه دسته ها</option>
                 {% for cat in categories %}
-                  <option value="{{ cat }}" {% if cat == category %}selected{% endif %}>{{ cat }}</option>
+                  <option value="{{ cat }}" {% if cat == category %}selected{% endif %}>{{ category_label(cat) }}</option>
                 {% endfor %}
               </select>
             </form>
 
             <!-- Desktop: pills/tabs -->
-            <div class="d-none d-md-flex flex-wrap gap-2 rtl-text" dir="rtl">
+            <div class="d-none d-md-flex flex-wrap gap-4 rtl-text" dir="rtl">
               <a class="btn btn-sm {% if not category %}btn-accent{% else %}btn-ghost{% endif %}"
                 href="{{ url_for('home', page=1, q=q, category='') }}">
                 همه
@@ -106,7 +106,7 @@
               {% for cat in categories %}
                 <a class="btn btn-sm {% if cat == category %}btn-accent{% else %}btn-ghost{% endif %}"
                   href="{{ url_for('home', page=1, q=q, category=cat) }}">
-                  {{ cat }}
+                  {{ category_label(cat) }}
                 </a>
               {% endfor %}
             </div>
