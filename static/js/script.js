@@ -70,3 +70,10 @@ if (searchForm && searchInput) {
     }, 1000); // set to 1000ms (1s) (change to 500 if you want faster)
   });
 }
+
+const categorySelectMobile = document.getElementById("categorySelectMobile");
+if (categorySelectMobile) {
+  categorySelectMobile.addEventListener("change", () => {
+    categorySelectMobile.form.submit();
+  });
+}

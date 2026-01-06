@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from db import init_db, save_news_to_db, fetch_rss_feed
+from db import init_db, save_news_to_db, fetch_all_feeds
 import sqlite3
 
 app = Flask(__name__)
@@ -9,7 +9,7 @@ app = Flask(__name__)
 @app.before_request
 def fetch_and_store_news():
     init_db()
-    news_items = fetch_rss_feed()
+    news_items = fetch_all_feeds()
     save_news_to_db(news_items)
 
 
@@ -39,31 +39,46 @@ def home():
     # Pagination parameters to get 9 items per page
     page = request.args.get("page", 1, type=int)
     q = request.args.get("q", "", type=str).strip()
+    category = request.args.get("category", "", type=str).strip()
+
     per_page = 9
     offset = (page - 1) * per_page
 
     # Database connection
     conn = sqlite3.connect("news.db")
     c = conn.cursor()
+
+    # Categories for UI
+    c.execute(
+        "SELECT DISTINCT category FROM news WHERE category IS NOT NULL AND category != '' ORDER BY category"
+    )
+    categories = [row[0] for row in c.fetchall()]
+
+    where = []
+    params = []
+
     if q:
+        where.append("(title LIKE ? OR description LIKE ?)")
         like = f"%{q}%"
-        c.execute(
-            "SELECT * FROM NEWS WHERE title LIKE ? OR description LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?",
-            (like, like, per_page, offset),
-        )
-        news_items = c.fetchall()
-        c.execute(
-            "SELECT COUNT(*) FROM news WHERE title LIKE ? OR description LIKE ?",
-            (like, like),
-        )
-        total_items = c.fetchone()[0]
-    else:
-        c.execute(
-            "SELECT * FROM news ORDER BY id DESC LIMIT ? OFFSET ?", (per_page, offset)
-        )
-        news_items = c.fetchall()
-        c.execute("SELECT COUNT(*) FROM news")
-        total_items = c.fetchone()[0]
+        params.extend([like, like])
+
+    if category:
+        where.append("category = ?")
+        params.append(category)
+
+    where_sql = (" WHERE " + " AND ".join(where)) if where else ""
+
+    c.execute(
+        f"SELECT * FROM news {where_sql} ORDER BY id DESC LIMIT ? OFFSET ?",
+        (*params, per_page, offset),
+    )
+    news_items = c.fetchall()
+
+    c.execute(
+        f"SELECT COUNT(*) FROM news {where_sql}",
+        (*params,),
+    )
+    total_items = c.fetchone()[0]
 
     conn.close()
 
@@ -78,6 +93,8 @@ def home():
         total_pages=total_pages,
         pagination=pagination,
         q=q,
+        category=category,
+        categories=categories,
     )
 
 
@@ -95,6 +112,7 @@ def news_detail(news_id):
         return "News not found!", 404
 
 
+# Refresh button url
 @app.route("/refresh")
 def refresh():
     news_items = fetch_rss_feed()
