@@ -2,8 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for
 from db import init_db, save_news_to_db, fetch_all_feeds
 from modules import category_label
 import sqlite3
+from flask_caching import Cache
 
 app = Flask(__name__)
+cache = Cache(
+    app, config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 60}
+)  # 60 seconds
 
 
 # Fetch and store news before each request
@@ -36,6 +40,7 @@ def build_pagination(page, total_pages, window=2):
 
 
 @app.route("/")
+@cache.cached(timeout=60, query_string=True)
 def home():
     # Pagination parameters to get 9 items per page
     page = request.args.get("page", 1, type=int)
@@ -117,14 +122,17 @@ def news_detail(news_id):
 # Refresh button url
 @app.route("/refresh")
 def refresh():
-    news_items = fetch_rss_feed()
+    news_items = fetch_all_feeds()
     save_news_to_db(news_items)
+
+    cache.clear()
 
     # Go back to where the user was
     page = request.args.get("page", 1, type=int)
     q = request.args.get("q", "", type=str)
+    category = request.args.get("category", "", type=str)
 
-    return redirect(url_for("home", page=page, q=q, refreshed=1))
+    return redirect(url_for("home", page=page, q=q, category=category, refreshed=1))
 
 
 if __name__ == "__main__":
